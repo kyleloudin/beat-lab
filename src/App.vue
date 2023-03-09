@@ -1,15 +1,14 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <drum-machine></drum-machine>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import DrumMachine from './components/drum-machine.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    DrumMachine
   }
 }
 </script>
