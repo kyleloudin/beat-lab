@@ -1,5 +1,7 @@
 # drum-machine
 
+new commit
+
 ## Project setup
 ```
 npm install
