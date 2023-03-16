@@ -21,37 +21,37 @@ export default {
       let fileName = "";
       switch (e.key) {
         case "a":
-          fileName = "snare.wav";
-          break;
-        case "s":
           fileName = "kick.wav";
           break;
+        case "s":
+          fileName = "kick2.wav";
+          break;
         case "z":
-          // code block
+          fileName = "kick3.wav";
           break;
         case "x":
-          // code block
+          fileName = "kick4.wav";
           break;
         case "d":
-          // code block
+          fileName = "snare.wav";
           break;
         case "f":
-          // code block
+          fileName = "snare2.wav";
           break;
         case "c":
-          // code block
+          fileName = "snare3.wav";
           break;
         case "v":
-          // code block
+          fileName = "snare4.wav";
           break;
         case "i":
-          // code block
+          fileName = "hihat1.wav";
           break;
         case "o":
-          // code block
+          fileName = "hihat2.wav";
           break;
         case "p":
-          // code block
+          fileName = "hihat3.wav";
           break;
       }
       let audio = new Audio(require("../assets/" + fileName));
