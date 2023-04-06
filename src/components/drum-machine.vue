@@ -62,10 +62,10 @@ export default {
     },
   },
   created() {
-    window.addEventListener("keyup", this.playSound);
+    window.addEventListener("keydown", this.playSound);
   },
   unmounted() {
-    window.removeEventListener("keyup", this.playSound);
+    window.removeEventListener("keydown", this.playSound);
   },
 };
 </script>
