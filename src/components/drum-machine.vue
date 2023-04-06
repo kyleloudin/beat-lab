@@ -1,12 +1,39 @@
 <template>
   <h1>Beat Lab</h1>
   <!-- <input v-on:keyup.enter="playSound()" /> -->
+  <input v-model="bpm" />
+  <div class="buttons">
+    <input
+      id="Eighth Note"
+      name="note-value"
+      type="radio"
+      value="8"
+      v-model="noteValue"
+    />
+    <label for="Eighth Note">Eighth Note</label>
+    <input
+      id="Quarter Note"
+      name="note-value"
+      type="radio"
+      value="4"
+      v-model="noteValue"
+    />
+    <label for="Quarter Note">Quarter Note</label>
+    <input id="Half Note" name="note-value" type="radio" value="2" v-model="noteValue" />
+    <label for="Half Note">Half Note</label>
+    <input id="Whole Note" name="note-value" type="radio" value="1" v-model="noteValue" />
+    <label for="Whole Note">Whole Note</label>
+  </div>
+  <button @click="playSoundRepeat()">play</button>
 </template>
 
 <script>
 export default {
   data() {
     return {
+      bpm: "",
+      noteValue: "",
+      fileName: "",
       sounds: [
         {
           title: "snare",
@@ -17,6 +44,9 @@ export default {
     };
   },
   methods: {
+    findBeats(){
+      return (((this.bpm /60) / this.noteValue) * 1000); 
+    },
     playSound(e) {
       let fileName = "";
       switch (e.key) {
@@ -55,10 +85,17 @@ export default {
           break;
       }
       let audio = new Audio(require("../assets/" + fileName));
+      this.fileName = fileName;
+      audio.play();
+    },
+    playSoundRepeat() {
+      let audio = new Audio(require("../assets/" + this.fileName));
+      let time = this.findBeats();
+      setTimeout(this.playSoundRepeat, time);
       audio.play();
     },
     test() {
-      return alert("test");
+      console.log("test");
     },
   },
   created() {
@@ -70,4 +107,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+</style>
