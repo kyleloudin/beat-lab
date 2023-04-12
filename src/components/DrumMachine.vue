@@ -65,12 +65,14 @@
       </v-card-text>
     </v-card>
     <v-radio-group class="radio pl-400" v-model="noteValue" row>
-      <v-radio label="Eighth Note" value="0.5"></v-radio>
-      <v-radio label="Quarter Note" value="1"></v-radio>
+      <v-radio label="Eighth Note" value="8"></v-radio>
+      <v-radio label="Quarter Note" value="4"></v-radio>
       <v-radio label="Half Note" value="2"></v-radio>
-      <v-radio label="Whole Note" value="4"></v-radio>
+      <v-radio label="Whole Note" value="1"></v-radio>
     </v-radio-group>
-    <v-btn rounded color="primary" dark> Play Recording </v-btn>
+    <v-btn rounded color="primary" dark @click="playRecording()">
+      Play Recording
+    </v-btn>
   </v-container>
 </template>
 
@@ -83,6 +85,8 @@ export default {
     fileName: "",
     noteValue: "",
     recording: [],
+    sounds: [],
+    valueOfNotes: [],
   }),
 
   computed: {
@@ -100,10 +104,7 @@ export default {
 
   methods: {
     findBeats() {
-      if(this.noteValue === "") {
-        this.noteValue = 1;
-      }
-      return (60 / this.bpm * this.noteValue) * 1000;
+      return (60 / this.bpm) * 1000;
     },
     playSound(e) {
       let fileName = "";
@@ -144,18 +145,19 @@ export default {
       }
       let audio = new Audio(require("../assets/" + fileName));
       this.fileName = fileName;
+      this.sounds.push(audio);
+      this.valueOfNotes.push(this.noteValue);
       audio.play();
     },
     playSoundRepeat() {
-      if (!this.isPlaying) {
+      if (!this.isPlaying || this.sounds === [] ) {
         setTimeout(this.stopSound, 200);
-      } else {
-        let audio = new Audio(require("../assets/" + this.fileName));
-        let time = this.findBeats();
-        this.recording.push(audio);
-        setTimeout(this.playSoundRepeat, time);
-        audio.play();
       }
+      this.sounds.forEach((sound) => {
+        let time = this.findBeats() * this.valueOfNotes.valueOf(sound);
+        setTimeout(this.playSoundRepeat, time);
+        sound.play();
+      });
     },
     playRecording() {
       this.recording.forEach((audio) => {
@@ -163,7 +165,7 @@ export default {
       });
     },
     stopSound() {
-      this.fileName = "";
+      this.sounds = [];
     },
     decrement() {
       this.bpm--;
