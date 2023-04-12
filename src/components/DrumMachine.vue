@@ -65,10 +65,10 @@
       </v-card-text>
     </v-card>
     <v-radio-group class="radio pl-400" v-model="noteValue" row>
-      <v-radio label="Eighth Note" value="8"></v-radio>
-      <v-radio label="Quarter Note" value="4"></v-radio>
+      <v-radio label="Eighth Note" value="0.5"></v-radio>
+      <v-radio label="Quarter Note" value="1"></v-radio>
       <v-radio label="Half Note" value="2"></v-radio>
-      <v-radio label="Whole Note" value="1"></v-radio>
+      <v-radio label="Whole Note" value="4"></v-radio>
     </v-radio-group>
     <v-btn rounded color="primary" dark> Play Recording </v-btn>
   </v-container>
@@ -100,7 +100,10 @@ export default {
 
   methods: {
     findBeats() {
-      return (60 / this.bpm) * 1000;
+      if(this.noteValue === "") {
+        this.noteValue = 1;
+      }
+      return (60 / this.bpm * this.noteValue) * 1000;
     },
     playSound(e) {
       let fileName = "";
