@@ -17,3 +17,10 @@ npm run build
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### TO DO
+
+We need to make sounds an object to capture the time stamp
+
+Work on implementing piano and record button. 

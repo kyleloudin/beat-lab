@@ -64,15 +64,29 @@
         </v-slider>
       </v-card-text>
     </v-card>
-    <v-radio-group class="radio pl-400" v-model="noteValue" row>
-      <v-radio label="Eighth Note" value="8"></v-radio>
-      <v-radio label="Quarter Note" value="4"></v-radio>
-      <v-radio label="Half Note" value="2"></v-radio>
-      <v-radio label="Whole Note" value="1"></v-radio>
-    </v-radio-group>
-    <v-btn rounded color="primary" dark @click="playRecording()">
-      Play Recording
-    </v-btn>
+    <div class="d-flex justify-center">
+      <v-radio-group
+        class="radio pl-400 d-flex justify-center"
+        v-model="noteValue"
+        row
+      >
+        <v-radio label="Eighth Note" value=".5"></v-radio>
+        <v-radio label="Quarter Note" value="1"></v-radio>
+        <v-radio label="Half Note" value="2"></v-radio>
+        <v-radio label="Whole Note" value="4"></v-radio>
+      </v-radio-group>
+    </div>
+    <div class="d-flex justify-center">
+      <v-btn
+        class="d-flex flex-start"
+        rounded
+        color="primary"
+        dark
+        @click="playRecording()"
+      >
+        Play Recording
+      </v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -87,6 +101,8 @@ export default {
     recording: [],
     sounds: [],
     valueOfNotes: [],
+    checked: true,
+    sounds2: [],
   }),
 
   computed: {
@@ -104,10 +120,10 @@ export default {
 
   methods: {
     findBeats() {
-      return (60 / this.bpm) * 1000;
+      return (60 / this.bpm) * 1000 * this.noteValue;
     },
     playSound(e) {
-      let fileName = "";
+      let fileName;
       switch (e.key) {
         case "a":
           fileName = "kick.wav";
@@ -142,22 +158,31 @@ export default {
         case "p":
           fileName = "hihat3.wav";
           break;
+        default:
+          fileName = "";
+          break;
       }
-      let audio = new Audio(require("../assets/" + fileName));
-      this.fileName = fileName;
-      this.sounds.push(audio);
-      this.valueOfNotes.push(this.noteValue);
-      audio.play();
+      if (fileName != "" && this.noteValue != "") {
+        let audio = new Audio(require("../assets/" + fileName));
+        this.fileName = fileName;
+        this.sounds.push(audio);
+        this.sounds2.push(fileName);
+        this.valueOfNotes.push(this.noteValue);
+        audio.play();
+      }
     },
+
     playSoundRepeat() {
-      if (!this.isPlaying || this.sounds === [] ) {
+      if (!this.isPlaying || this.sounds === []) {
         setTimeout(this.stopSound, 200);
-      }
-      this.sounds.forEach((sound) => {
-        let time = this.findBeats() * this.valueOfNotes.valueOf(sound);
+      } else {
+        this.sounds2.forEach((sound) => {
+          let audio = new Audio(require("../assets/" + sound));
+          audio.play();
+        });
+        let time = this.findBeats();
         setTimeout(this.playSoundRepeat, time);
-        sound.play();
-      });
+      }
     },
     playRecording() {
       this.recording.forEach((audio) => {
@@ -196,6 +221,10 @@ export default {
     transform: scale(1);
   }
 }
+
+/* .v-input--radio-group__input {
+  justify-content: center;
+} */
 
 .v-avatar--metronome {
   animation-name: metronome-example;
