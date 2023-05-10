@@ -80,13 +80,10 @@
 export default {
   data: () => ({
     bpm: 40,
-    interval: null,
     isPlaying: false,
     fileName: "",
     noteValue: "",
     recording: [],
-    sounds: [],
-    valueOfNotes: [],
   }),
 
   computed: {
@@ -104,7 +101,7 @@ export default {
 
   methods: {
     findBeats() {
-      return (60 / this.bpm) * 1000;
+      return (60 / this.noteValue / this.bpm) * 1000;
     },
     playSound(e) {
       let fileName = "";
@@ -145,19 +142,17 @@ export default {
       }
       let audio = new Audio(require("../assets/" + fileName));
       this.fileName = fileName;
-      this.sounds.push(audio);
-      this.valueOfNotes.push(this.noteValue);
       audio.play();
     },
     playSoundRepeat() {
-      if (!this.isPlaying || this.sounds === [] ) {
+      if (!this.isPlaying) {
         setTimeout(this.stopSound, 200);
-      }
-      this.sounds.forEach((sound) => {
-        let time = this.findBeats() * this.valueOfNotes.valueOf(sound);
+      } else {
+        let time = this.findBeats();
+        let audio = new Audio(require("../assets/" + this.fileName));
         setTimeout(this.playSoundRepeat, time);
-        sound.play();
-      });
+        audio.play();
+      }
     },
     playRecording() {
       this.recording.forEach((audio) => {
@@ -165,7 +160,7 @@ export default {
       });
     },
     stopSound() {
-      this.sounds = [];
+      this.fileName = "";
     },
     decrement() {
       this.bpm--;
