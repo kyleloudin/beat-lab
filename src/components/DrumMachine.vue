@@ -232,3 +232,9 @@ export default {
   animation-direction: alternate;
 }
 </style>
+
+
+
+
+
+

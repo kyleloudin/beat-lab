@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AccountView from "../views/AccountView.vue";
 import DrumsView from "../views/DrumsView.vue";
+import TestView from "../views/TestView.vue";
+import PianoView from "../views/PianoView.vue";
 
 Vue.use(VueRouter);
 
@@ -21,6 +23,16 @@ const routes = [
     path: "/drums",
     name: "drums",
     component: DrumsView,
+  },
+  {
+    path: "/piano",
+    name: "piano",
+    component: PianoView
+  },
+  {
+    path: "/test",
+    name: "test",
+    component: TestView,
   },
 ];
 
