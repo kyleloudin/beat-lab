@@ -74,7 +74,7 @@ export default {
     ],
     instruments: [
       { title: "Drums", icon: "mdi-light-recessed", to: "/drums" },
-      { title: "Keys", icon: "mdi-piano", to: "" },
+      { title: "Piano", icon: "mdi-piano", to: "/piano"},
       { title: "Guitar", icon: "mdi-guitar-acoustic", to: "" },
       { title: "Bass", icon: "mdi-music-clef-bass", to: "" },
       { title: "Harmonica", icon: "mdi-music-clef-alto", to: "" },
