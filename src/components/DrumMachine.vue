@@ -18,7 +18,7 @@
             <span class="subheading font-weight-light mr-1">BPM</span>
             <v-fade-transition>
               <v-avatar
-                v-if="isPlaying"
+                v-if="isClicking"
                 :color="color"
                 :style="{
                   animationDuration: animationDuration,
@@ -30,17 +30,18 @@
           </v-col>
           <v-col class="text-right">
             <v-btn
+              class="metronome-button"
               :color="color"
               dark
               depressed
               fab
               @click="
-                toggle();
-                playSoundRepeat();
+                toggle('metronome');
+                activateMetronome();
               "
             >
               <v-icon large>
-                {{ isPlaying ? "mdi-pause" : "mdi-play" }}
+                {{ isClicking ? "mdi-pause" : "mdi-play" }}
               </v-icon>
             </v-btn>
           </v-col>
@@ -78,31 +79,57 @@
     </div>
     <div class="d-flex justify-center">
       <v-btn
-        class="d-flex flex-start"
+        class="record d-flex flex-start"
         rounded
         color="primary"
         dark
-        @click="playRecording()"
+        @click="toggle('record')"
       >
-        Play Recording
+        Record
+      </v-btn>
+      <v-btn
+        class="play d-flex flex-start"
+        rounded
+        color="primary"
+        dark
+        @click="toggle('playSong'), playRecording()"
+      >
+        Play
+      </v-btn>
+      <v-btn
+        class="quantize d-flex flex-start"
+        rounded
+        color="primary"
+        dark
+        @click="quantize('quantize')"
+      >
+        Quantize
       </v-btn>
     </div>
   </v-container>
 </template>
 
 <script>
+import * as Tone from "tone";
+
 export default {
   data: () => ({
+    recordButton: document.querySelector(".record"),
+    metronomeButton: document.querySelector(".metronome-button"),
     bpm: 40,
     interval: null,
     isPlaying: false,
+    isRecording: false,
+    isClicking: false,
     fileName: "",
-    noteValue: "",
-    recording: [],
-    sounds: [],
-    valueOfNotes: [],
     checked: true,
-    sounds2: [],
+    barLength: 0,
+    noteValue: "",
+    noteObject: {
+      fileName: "",
+      time: "",
+    },
+    notesArray: [],
   }),
 
   computed: {
@@ -122,72 +149,131 @@ export default {
     findBeats() {
       return (60 / this.bpm) * 1000 * this.noteValue;
     },
-    playSound(e) {
-      let fileName;
-      switch (e.key) {
-        case "a":
-          fileName = "kick.wav";
-          break;
-        case "s":
-          fileName = "kick2.wav";
-          break;
-        case "z":
-          fileName = "kick3.wav";
-          break;
-        case "x":
-          fileName = "kick4.wav";
-          break;
-        case "d":
-          fileName = "snare.wav";
-          break;
-        case "f":
-          fileName = "snare2.wav";
-          break;
-        case "c":
-          fileName = "snare3.wav";
-          break;
-        case "v":
-          fileName = "snare4.wav";
-          break;
-        case "i":
-          fileName = "hihat1.wav";
-          break;
-        case "o":
-          fileName = "hihat2.wav";
-          break;
-        case "p":
-          fileName = "hihat3.wav";
-          break;
-        default:
-          fileName = "";
-          break;
-      }
-      if (fileName != "" && this.noteValue != "") {
-        let audio = new Audio(require("../assets/" + fileName));
-        this.fileName = fileName;
-        this.sounds.push(audio);
-        this.sounds2.push(fileName);
-        this.valueOfNotes.push(this.noteValue);
-        audio.play();
+    activateMetronome() {
+      let metronomeClick = new Audio(require("../assets/metronome.wav"));
+      if (this.isClicking) {
+        metronomeClick.play();
+        let time = (60 / this.bpm) * 1000;
+        setTimeout(this.activateMetronome, time);
+      } else if (!this.isClicking) {
+        metronomeClick.pause();
+        metronomeClick = new Audio(require("../assets/metronome.wav"));
       }
     },
 
-    playSoundRepeat() {
-      if (!this.isPlaying || this.sounds === []) {
-        setTimeout(this.stopSound, 200);
-      } else {
-        this.sounds2.forEach((sound) => {
-          let audio = new Audio(require("../assets/" + sound));
-          audio.play();
-        });
-        let time = this.findBeats();
-        setTimeout(this.playSoundRepeat, time);
+    findClosestValue(inputTime) {
+      let startTime = Date.now();
+      let dataSet = [];
+      let timeBetweenNotes = 60000 / (this.bpm * 8);
+      for (let i = 0; i <= 7; i++) {
+        (startTime + timeBetweenNotes * i).push(dataSet);
+      }
+      let closestValue = dataSet[0];
+      let closestDifference = Math.abs(inputTime - dataSet[0]);
+      for (let i = 1; i < dataSet.length; i++) {
+        const difference = Math.abs(inputTime - dataSet[i]);
+        if (difference < closestDifference) {
+          closestValue = dataSet[i];
+          closestDifference = difference;
+        }
+      }
+      return closestValue;
+    },
+
+    playSound(e) {
+      let pushNote = { fileName: "", time: 0 };
+      switch (e.key) {
+        case "a":
+          pushNote.fileName = "kick.wav";
+          pushNote.time = Date.now();
+          break;
+        case "s":
+          pushNote.fileName = "kick2.wav";
+          pushNote.time = Date.now();
+          break;
+        case "z":
+          pushNote.fileName = "kick3.wav";
+          pushNote.time = Date.now();
+          break;
+        case "x":
+          pushNote.fileName = "kick4.wav";
+          pushNote.time = Date.now();
+          break;
+        case "d":
+          pushNote.fileName = "snare.wav";
+          pushNote.time = Date.now();
+          break;
+        case "f":
+          pushNote.fileName = "snare2.wav";
+          pushNote.time = Date.now();
+          break;
+        case "c":
+          pushNote.fileName = "snare3.wav";
+          pushNote.time = Date.now();
+          break;
+        case "v":
+          pushNote.fileName = "snare4.wav";
+          pushNote.time = Date.now();
+          break;
+        case "i":
+          pushNote.fileName = "hihat1.wav";
+          pushNote.time = Date.now();
+          break;
+        case "o":
+          pushNote.fileName = "hihat2.wav";
+          pushNote.time = Date.now();
+          break;
+        case "p":
+          pushNote.fileName = "hihat3.wav";
+          pushNote.time = Date.now();
+          break;
+        default:
+          pushNote.fileName = "";
+          pushNote.time = Date.now();
+          break;
+      }
+      if (pushNote.fileName != "") {
+        let audio = new Audio(require("../assets/" + pushNote.fileName));
+        audio.play();
+      }
+      if (this.isRecording) {
+        this.notesArray.push(pushNote);
       }
     },
+
+    // playSoundRepeat() {
+    //   if (!this.isPlaying || this.sounds === []) {
+    //     setTimeout(this.stopSound, 200);
+    //   } else {
+    //     this.sounds2.forEach((sound) => {
+    //       let audio = new Audio(require("../assets/" + sound));
+    //       audio.play();
+    //     });
+    //     let time = this.findBeats();
+    //     setTimeout(this.playSoundRepeat, time);
+    //   }
+    // },
+
+    record() {},
     playRecording() {
-      this.recording.forEach((audio) => {
-        audio.play();
-      });
+      for (let i = 0; i < this.notesArray.length; i++) {
+        if (i === 0) {
+          this.notesArray[i].test = 0;
+        } else {
+          this.notesArray[i].test =
+            this.notesArray[i].time - this.notesArray[0].time;
+        }
+        this.notesArray.forEach((sound) => {
+          setTimeout(() => {
+            let audio = new Audio(require("../assets/" + sound.fileName));
+            audio.play();
+          }, sound.test);
+        });
+      }
+    },
+
+    quantize() {
+      findClosestValue();
     },
     stopSound() {
       this.sounds = [];
@@ -198,8 +284,19 @@ export default {
     increment() {
       this.bpm++;
     },
-    toggle() {
-      this.isPlaying = !this.isPlaying;
+    toggle(button) {
+      if (button == "metronome") {
+        this.isClicking = !this.isClicking;
+      }
+      if (button == "record") {
+        this.isRecording = !this.isRecording;
+      }
+      if (button == "playSong") {
+        this.isPlaying = !this.isPlaying;
+      }
+      if (button == "quantize") {
+        this.isQuantized = !this.isQuantized;
+      }
     },
   },
   created() {
@@ -232,9 +329,3 @@ export default {
   animation-direction: alternate;
 }
 </style>
-
-
-
-
-
-
