@@ -79,13 +79,13 @@
     </div>
     <div class="d-flex justify-center">
       <v-btn
+        :color="isRecording ? 'red' : 'primary'"
         class="record d-flex flex-start"
         rounded
-        color="primary"
         dark
         @click="toggle('record')"
       >
-        Record
+        {{ isRecording ? "Recording" : "Record" }}
       </v-btn>
       <v-btn
         class="play d-flex flex-start"
@@ -239,6 +239,7 @@ export default {
       if (this.isRecording) {
         this.notesArray.push(pushNote);
       }
+      pushNote = {};
     },
 
     // playSoundRepeat() {
@@ -257,19 +258,17 @@ export default {
     record() {},
     playRecording() {
       for (let i = 0; i < this.notesArray.length; i++) {
-        if (i === 0) {
-          this.notesArray[i].test = 0;
-        } else {
-          this.notesArray[i].test =
-            this.notesArray[i].time - this.notesArray[0].time;
-        }
-        this.notesArray.forEach((sound) => {
-          setTimeout(() => {
-            let audio = new Audio(require("../assets/" + sound.fileName));
-            audio.play();
-          }, sound.test);
-        });
+        this.notesArray[0].test = 0;
+
+        this.notesArray[i].test =
+          this.notesArray[i].time - this.notesArray[0].time;
       }
+      this.notesArray.forEach((sound) => {
+        setTimeout(() => {
+          let audio = new Audio(require("../assets/" + sound.fileName));
+          audio.play();
+        }, sound.test);
+      });
     },
 
     quantize() {
@@ -289,7 +288,17 @@ export default {
         this.isClicking = !this.isClicking;
       }
       if (button == "record") {
-        this.isRecording = !this.isRecording;
+        if(!this.isRecording && this.isClicking){
+          this.isRecording = !this.isRecording;
+        }
+        else if (this.isRecording) {
+          this.isClicking = false;
+          this.isRecording = !this.isRecording;
+        } else {
+          this.isRecording = !this.isRecording;
+          this.isClicking = true;
+          this.activateMetronome();
+        }
       }
       if (button == "playSong") {
         this.isPlaying = !this.isPlaying;
@@ -302,7 +311,7 @@ export default {
   created() {
     window.addEventListener("keydown", this.playSound);
   },
-  unmounted() {
+  beforeDestroy() {
     window.removeEventListener("keydown", this.playSound);
   },
 };
@@ -315,7 +324,7 @@ export default {
   }
 
   to {
-    transform: scale(1);
+    transform: scale(1);  
   }
 }
 
