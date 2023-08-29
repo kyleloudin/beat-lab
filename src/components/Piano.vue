@@ -1,7 +1,7 @@
 <template>
-  <v-container class="piano-container">
-    <v-row>
-      <v-btn
+  <container class="piano-container">
+    <row>
+      <btn
         v-for="key in pianoKeys"
         :key="key.id"
         :class="['piano-key', key.type, { active: key.active }]"
@@ -11,9 +11,9 @@
         @touchend="stopKey(key)"
       >
         {{ key.label }}
-      </v-btn>
-    </v-row>
-  </v-container>
+      </btn>
+    </row>
+  </container>
 </template>
 
 <script>
@@ -37,6 +37,7 @@ export default {
         { id: 11, label: "A#", type: "black", active: false, keyCode: 85 },
         { id: 12, label: "B", type: "white", active: false, keyCode: 74 },
       ],
+      activeSynths: {}, // Track active synths for each key
     };
   },
   created() {
@@ -54,7 +55,6 @@ export default {
       key.active = true;
       const synth = new Tone.Synth().toDestination();
 
-      
       // if (key.keyCode == 65) {
       //   //play a middle 'C' for the duration of an 8th note
       //   synth.triggerAttackRelease("C4", "8n");
@@ -65,49 +65,53 @@ export default {
         synth.triggerAttackRelease("C4", "4n");
         break;
         case 87:
-        synth.triggerAttackRelease("C#4", "8n");
+        synth.triggerAttackRelease("C#4", "4n");
         break;
         case 83:
-        synth.triggerAttackRelease("D4", "8n");
+        synth.triggerAttackRelease("D4", "4n");
         break;
         case 69:
-        synth.triggerAttackRelease("D#4", "8n");
+        synth.triggerAttackRelease("D#4", "4n");
         break;
         case 68:
-        synth.triggerAttackRelease("E4", "8n");
-        break;
+        synth.triggerAttackRelease("E4", "4n");
+        break;a
         case 70:
-        synth.triggerAttackRelease("F4", "8n");
+        synth.triggerAttackRelease("F4", "4n");
         break;
         case 84:
-        synth.triggerAttackRelease("F#4", "8n");
+        synth.triggerAttackRelease("F#4", "4n");
         break;
         case 71:
-        synth.triggerAttackRelease("G4", "8n");
+        synth.triggerAttackRelease("G4", "4n");
         break;
         case 89:
-        synth.triggerAttackRelease("G#4", "8n");
+        synth.triggerAttackRelease("G#4", "4n");
         break;
         case 72:
-        synth.triggerAttackRelease("A4", "8n");
+        synth.triggerAttackRelease("A4", "4n");
         break;
         case 85:
-        synth.triggerAttackRelease("A#4", "8n");
+        synth.triggerAttackRelease("A#4", "4n");
         break;
         case 74:
-        synth.triggerAttackRelease("B4", "8n");
-        break;
+        synth.triggerAttackRelease("B4", "4n");
+        
+        break;c
       }
-      
+      key.active = false;
     },
     stopKey(key) {
       key.active = false;
+      
     },
     handleKeyDown(event) {
       // Find the matching piano key based on the keyCode
       const key = this.pianoKeys.find((key) => key.keyCode === event.keyCode);
+      if(event.repeat) return
       if (key) {
         this.playKey(key);
+        
       }
     },
     handleKeyUp(event) {
@@ -123,48 +127,70 @@ export default {
 
 <style>
 .piano-container {
-  background-color: #f0f0f0;
+  
   padding: 10px;
+  display: flex;
+  justify-content: center;
+  border-radius: 10px;
+  
+  
+}
+
+.piano-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 220px;
+  width: 1000px;
+  box-shadow: 0 4px 6px rgb(0, 0, 0);
 }
 
 .piano-key {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   min-width: 40px;
-  height: 160px;
+  height: 220px;
   font-size: 14px;
-  border: 1px solid #aaaaaa;
-  background-color: #ffffff;
-  color: #333333;
+  font-weight: bold;
+  background-color: #fff;
+  color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
-}
-
-.piano-key.white {
-  border-bottom: 3px solid #aaaaaa;
-}
-
-.piano-key.black {
   position: relative;
-  margin-left: -20px;
-  margin-right: -20px;
-  min-width: 20px;
-  height: 100px;
-  background-color: #333333;
-  color: #ffffff;
+  border-radius: 0;
+  margin: 0 -2px;
   z-index: 1;
 }
 
+.piano-key.white {
+  border-bottom: 3px solid #aaa;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.piano-key.black {
+  min-width: 24px;
+  height: 150px;
+  background-color: #000;
+  color: #fff;
+  z-index: 2;
+  border-radius: 0 0 5px 5px;
+  margin: 0 -1px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .piano-key.active {
-  background-color: #d0d0d0;
+  background-color: #ddd;
 }
 
 .piano-key.active.white {
-  background-color: #c0c0c0;
+  background-color: #ccc;
 }
 
 .piano-key.active.black {
-  background-color: #666666;
+  background-color: #444;
+}
+.v-application .white{
+  background-color: rgba(246, 246, 246, 0.8) !important;
 }
 </style>
